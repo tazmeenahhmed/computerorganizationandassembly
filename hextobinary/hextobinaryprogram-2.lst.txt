@@ -1,0 +1,93 @@
+ARM GAS  hextobinaryprogram.s 			page 1
+
+
+   1              	.DATA
+   2              	
+   3              	.balign
+   4 0000 78563412 	hexTable:		.WORD	0x12345678, 0x87654321, 0xFEDCBA98, 0x01010101, 0x6db6db6d, 0xCAFEF00D, 0x8BADF00D
+   4      21436587 
+   4      98BADCFE 
+   4      01010101 
+   4      6DDBB66D 
+   5              	
+   6 0024 54617A6D 	courseStr:		.ASCIZ	"Tazmeen Ahmed\tCIST 039\n"
+   6      65656E20 
+   6      41686D65 
+   6      64094349 
+   6      53542030 
+   7 003c 4865783A 	hexStr:			.ASCIZ	"Hex:\t%#010X\tBinary:\t"
+   7      09252330 
+   7      31305809 
+   7      42696E61 
+   7      72793A09 
+   8 0051 0A00     	newLine:		.ASCIZ	"\n"
+   9              	
+  10              	.TEXT
+  11              	.GLOBAL main
+  12              	
+  13              	main: 
+  14              	
+  15 0000 14D04DE2 		SUB		SP, SP, #20
+  16 0004 10E08DE5 		STR		LR, [SP, #16]
+  17 0008 0C408DE5 		STR		R4, [SP, #12] 
+  18 000c 08508DE5 		STR		R5, [SP, #8]  
+  19 0010 04608DE5 		STR		R6, [SP, #4]  
+  20 0014 00708DE5 		STR		R7, [SP, #0]  
+  21              		
+  22 0018 74009FE5 		LDR		R0, = courseStr
+  23 001c FEFFFFEB 		BL		printf
+  24              		
+  25 0020 70409FE5 		LDR		R4, =hexTable
+  26 0024 0050A0E3 		MOV		R5, #0
+  27              		
+  28              	loop:
+  29              	
+  30 0028 057194E7 		LDR		R7, [R4, R5, LSL #2]	// fetch number
+  31              		
+  32 002c 0710A0E1 		MOV		R1, R7			// print out the hex number
+  33 0030 64009FE5 		LDR		R0, =hexStr
+  34 0034 FEFFFFEB 		BL		printf
+  35              		
+  36 0038 2060A0E3 		MOV		R6, #32			// getting ready for inner loop
+  37              		
+  38              	inner_loop:
+  39              		
+  40 003c 8770B0E1 		LSLS	R7, R7, #1			// if else inner loop to print out binary digits
+  41 0040 0200002A 		BCS		print_a_one
+  42 0044 3000A0E3 		MOV		R0, #'0'
+  43 0048 FEFFFFEB 		BL		putchar
+  44 004c 010000EA 		B		next
+  45              		
+ARM GAS  hextobinaryprogram.s 			page 2
+
+
+  46              	print_a_one:
+  47              	
+  48 0050 3100A0E3 		MOV		R0, #'1'
+  49 0054 FEFFFFEB 		BL		putchar
+  50              	
+  51              	next: 
+  52              	
+  53 0058 016056E2 		SUBS		R6, R6, #1
+  54 005c F6FFFFCA 		BGT		inner_loop
+  55              	
+  56 0060 38009FE5 		LDR		R0, =newLine
+  57 0064 FEFFFFEB 		BL		printf
+  58              		
+  59 0068 015085E2 		ADD		R5, R5, #1  		// outerloop increment
+  60 006c 090055E3 		CMP		R5, #9
+  61 0070 ECFFFFBA 		BLT		loop
+  62              	
+  63 0074 00709DE5 		LDR		R7, [SP, #0]
+  64 0078 04609DE5 		LDR		R6, [SP, #4]
+  65 007c 08509DE5 		LDR		R5, [SP, #8]
+  66 0080 0C409DE5 		LDR		R4, [SP, #12]
+  67 0084 10E09DE5 		LDR		LR, [SP, #16]
+  68 0088 14D08DE2 		ADD		SP, SP, #20
+  69              		
+  70 008c 0000A0E3 		MOV		R0, #0
+  71 0090 1EFF2FE1 		BX		LR
+  71      24000000 
+  71      00000000 
+  71      3C000000 
+  71      51000000 

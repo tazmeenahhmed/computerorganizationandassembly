@@ -1,0 +1,71 @@
+.DATA
+
+.balign
+hexTable:		.WORD	0x12345678, 0x87654321, 0xFEDCBA98, 0x01010101, 0x6db6db6d, 0xCAFEF00D, 0x8BADF00D, 0x00000000, 0xFFFFFFFF
+
+courseStr:		.ASCIZ	"Tazmeen Ahmed\tCIST 039\n"
+hexStr:			.ASCIZ	"Hex:\t%#010X\tBinary:\t"
+newLine:		.ASCIZ	"\n"
+
+.TEXT
+.GLOBAL main
+
+main: 
+
+	SUB		SP, SP, #20
+	STR		LR, [SP, #16]
+	STR		R4, [SP, #12] 
+	STR		R5, [SP, #8]  
+	STR		R6, [SP, #4]  
+	STR		R7, [SP, #0]  
+	
+	LDR		R0, = courseStr
+	BL		printf
+	
+	LDR		R4, =hexTable
+	MOV		R5, #0
+	
+loop:
+
+	LDR		R7, [R4, R5, LSL #2]	// fetch number
+	
+	MOV		R1, R7			// print out the hex number
+	LDR		R0, =hexStr
+	BL		printf
+	
+	MOV		R6, #32			// getting ready for inner loop
+	
+inner_loop:
+	
+	LSLS		R7, R7, #1		// if else inner loop to print out binary digits
+	BCS		print_a_one
+	MOV		R0, #'0'
+	BL		putchar
+	B		next
+	
+print_a_one:
+
+	MOV		R0, #'1'
+	BL		putchar
+
+next: 
+
+	SUBS		R6, R6, #1
+	BGT		inner_loop
+
+	LDR		R0, =newLine
+	BL		printf
+	
+	ADD		R5, R5, #1  		// outerloop increment
+	CMP		R5, #9
+	BLT		loop
+
+	LDR		R7, [SP, #0]
+	LDR		R6, [SP, #4]
+	LDR		R5, [SP, #8]
+	LDR		R4, [SP, #12]
+	LDR		LR, [SP, #16]
+	ADD		SP, SP, #20
+	
+	MOV		R0, #0
+	BX		LR
