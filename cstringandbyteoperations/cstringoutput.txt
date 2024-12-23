@@ -1,0 +1,35 @@
+Tazmeen Ahmed	CIST 039
+Enter a string: tes t case to check if the first word is uncapitalized if the function will still capitalize it. also a test case for checking the word limit and making sure only 99 character capacity ecists
+There are 99 characters in: "tes t case to check if the first word is uncapitalized if the function will still capitalize it. al".
+There are 30 vowels in: "tes t case to check if the first word is uncapitalized if the function will still capitalize it. al".
+Upper case first characters: "Tes T Case To Check If The First Word Is Uncapitalized If The Function Will Still Capitalize It. Al".
+Shouting: "TES T CASE TO CHECK IF THE FIRST WORD IS UNCAPITALIZED IF THE FUNCTION WILL STILL CAPITALIZE IT. AL".
+Extra spaces removed: "TES T CASE TO CHECK IF THE FIRST WORD IS UNCAPITALIZED IF THE FUNCTION WILL STILL CAPITALIZE IT. AL".
+
+
+------------------
+(program exited with code: 0)
+Press return to continue
+
+
+
+
+
+Tazmeen Ahmed	CIST 039
+Enter a string:    test case for   leading   trailing  and in between spaces  
+There are 62 characters in: "   test case for   leading   trailing  and in between spaces  ".
+There are 17 vowels in: "   test case for   leading   trailing  and in between spaces  ".
+Upper case first characters: "   Test Case For   Leading   Trailing  And In Between Spaces  ".
+Shouting: "   TEST CASE FOR   LEADING   TRAILING  AND IN BETWEEN SPACES  ".
+Extra spaces removed: " TEST CASE FOR LEADING TRAILING AND IN BETWEEN SPACES ".
+
+
+------------------
+(program exited with code: 0)
+Press return to continue
+
+
+
+
+
+
