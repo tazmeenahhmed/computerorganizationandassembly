@@ -1,0 +1,146 @@
+.DATA
+
+courseSTR:		.ASCIZ		"Tazmeen Ahmed\tCIST 039\n"
+printFIRST:		.ASCIZ		"\nEnter the first integer (0 to exit): "
+printSEC:		.ASCIZ		"Enter the second integer: "
+printTHIRD:		.ASCIZ		"Enter the third integer: "
+printFOURTH:		.ASCIZ		"Enter the fourth integer: "
+printFIFTH:		.ASCIZ		"Enter the fifth integer: "
+printSIXTH:		.ASCIZ		"Enter the sixth integer: "
+funcDisplay:		.ASCIZ		"Now calling: \tAdd5Subtract1  ( %d %d %d %d %d %d ); \n"
+resultSTR:		.ASCIZ		"The result is: \t%d \n"
+
+.balign			4
+formatSTR:		.STRING		"%d"
+
+.TEXT
+.GLOBAL main
+
+main:
+
+	STMDB		SP!, {FP, LR}
+	MOV		FP, SP
+	
+	LDR		R0, =courseSTR
+	BL		printf
+	
+	SUB		SP, SP, #24
+	
+loop:
+
+	LDR		R0, =printFIRST		// get input for 1st parameter
+	BL		printf
+	ADD		R1, FP, #-4
+	LDR		R0, =formatSTR
+	BL		scanf
+	
+	LDR		R12, [FP, #-4]		//end program if 0
+	CMP		R12, #0		
+	BEQ		end
+	
+	LDR		R0, =printSEC		// get input for 2nd parameter
+	BL		printf
+	ADD		R1, FP, #-8
+	LDR		R0, =formatSTR
+	BL		scanf
+	
+	LDR		R0, =printTHIRD		// get input for 3rd parameter
+	BL		printf
+	ADD		R1, FP, #-12
+	LDR		R0, =formatSTR
+	BL		scanf
+	
+	LDR		R0, =printFOURTH	// get input for 4th parameter
+	BL		printf
+	ADD		R1, FP, #-16
+	LDR		R0, =formatSTR
+	BL		scanf
+	
+	LDR		R0, =printFIFTH		// get input for 5th parameter
+	BL		printf
+	ADD		R1, FP, #-20
+	LDR		R0, =formatSTR
+	BL		scanf
+	
+	LDR		R0, =printSIXTH		// get input for 6th parameter
+	BL		printf
+	ADD		R1, FP, #-24
+	LDR		R0, =formatSTR
+	BL		scanf
+	
+	LDR		R3, [FP, #-12]
+	LDR		R2, [FP, #-8]		// load in parameters for printf
+	LDR		R1, [FP, #-4]
+	
+	SUB		SP, SP, #12
+	LDR		R12, [FP, #-16]		// allocate for extra parameters
+	STR		R12, [SP, #0]
+	
+	LDR		R12, [FP, #-20]
+	STR		R12, [SP, #4]
+	
+	LDR		R12, [FP, #-24]
+	STR		R12, [SP, #8]
+	
+	LDR		R0, =funcDisplay
+	BL		printf				// print out parameters
+	ADD		SP, SP, #12
+	
+	LDR		R3, [FP, #-16]
+	LDR		R2, [FP, #-12]		// load in parameters for next function
+	LDR		R1, [FP, #-8]
+	LDR		R0, [FP, #-4]
+	
+	SUB		SP, SP, #8
+	LDR		R12, [FP, #-20]		// allocate for extra parameters
+	STR		R12, [SP, #0]
+	
+	LDR		R12, [FP, #-24]
+	STR		R12, [SP, #4]
+	
+	BL		add5subtract1
+	ADD		SP, SP,	#8
+	
+	MOV		R1, R0
+	LDR		R0, =resultSTR		// print out final result
+	BL		printf
+	
+	B		loop
+	
+end:
+
+	ADD		SP, SP, #24
+	LDMIA		SP!, {FP, LR}
+	MOV		R0, #0
+	BX		LR
+	
+add5subtract1:
+// Adds first five input numbers, subtracts the sixth, 
+// returns result to main
+// Input: Parameters
+// 		R0: first input
+//		R1: second input
+//		R2: third input
+//		R3: fourth input
+//		[FP, #8]: fifth input
+//		[FP, #12]: sixth input
+// 
+// Output: Return Values
+// 		R0: First 5 parameters added and subtracted by 6th parameter
+
+	STMDB		SP!, {FP, LR}
+	MOV		FP, SP
+	
+	ADD		R0, R0, R1
+	ADD		R0, R0, R2
+	ADD		R0, R0, R3
+	
+	LDR		R12, [FP, #8]
+	ADD		R0, R0, R12
+	
+	LDR		R12, [FP, #12]
+	SUB		R0, R0, R12
+	
+	
+	LDMIA		SP!, {FP, LR}
+	BX LR	

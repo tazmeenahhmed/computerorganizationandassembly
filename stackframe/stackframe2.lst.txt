@@ -1,0 +1,198 @@
+ARM GAS  stackframe2.s 			page 1
+
+
+   1              	.DATA
+   2              	
+   3 0000 54617A6D 	courseSTR:		.ASCIZ		"Tazmeen Ahmed\tCIST 039\n"
+   3      65656E20 
+   3      41686D65 
+   3      64094349 
+   3      53542030 
+   4 0018 0A456E74 	printFIRST:		.ASCIZ		"\nEnter the first integer (0 to exit): "
+   4      65722074 
+   4      68652066 
+   4      69727374 
+   4      20696E74 
+   5 003f 456E7465 	printSEC:		.ASCIZ		"Enter the second integer: "
+   5      72207468 
+   5      65207365 
+   5      636F6E64 
+   5      20696E74 
+   6 005a 456E7465 	printTHIRD:		.ASCIZ		"Enter the third integer: "
+   6      72207468 
+   6      65207468 
+   6      69726420 
+   6      696E7465 
+   7 0074 456E7465 	printFOURTH:		.ASCIZ		"Enter the fourth integer: "
+   7      72207468 
+   7      6520666F 
+   7      75727468 
+   7      20696E74 
+   8 008f 456E7465 	printFIFTH:		.ASCIZ		"Enter the fifth integer: "
+   8      72207468 
+   8      65206669 
+   8      66746820 
+   8      696E7465 
+   9 00a9 456E7465 	printSIXTH:		.ASCIZ		"Enter the sixth integer: "
+   9      72207468 
+   9      65207369 
+   9      78746820 
+   9      696E7465 
+  10 00c3 4E6F7720 	funcDisplay:		.ASCIZ		"Now calling: \tAdd5Subtract1  ( %d %d %d %d %d %d ); \n"
+  10      63616C6C 
+  10      696E673A 
+  10      20094164 
+  10      64355375 
+  11 00f9 54686520 	resultSTR:		.ASCIZ		"The result is: \t%d \n"
+  11      72657375 
+  11      6C742069 
+  11      733A2009 
+  11      2564200A 
+  12              	
+  13 010e 0000     	.balign			4
+  14 0110 256400   	formatSTR:		.STRING		"%d"
+  15              	
+  16              	.TEXT
+  17              	.GLOBAL main
+  18              	
+  19              	main:
+  20              	
+  21 0000 00482DE9 		STMDB		SP!, {FP, LR}
+ARM GAS  stackframe2.s 			page 2
+
+
+  22 0004 0DB0A0E1 		MOV		FP, SP
+  23              		
+  24 0008 34019FE5 		LDR		R0, =courseSTR
+  25 000c FEFFFFEB 		BL		printf
+  26              		
+  27 0010 18D04DE2 		SUB		SP, SP, #24
+  28              		
+  29              	loop:
+  30              	
+  31 0014 2C019FE5 		LDR		R0, =printFIRST		// get input for 1st parameter
+  32 0018 FEFFFFEB 		BL		printf
+  33 001c 04104BE2 		ADD		R1, FP, #-4
+  34 0020 24019FE5 		LDR		R0, =formatSTR
+  35 0024 FEFFFFEB 		BL		scanf
+  36              		
+  37 0028 04C01BE5 		LDR		R12, [FP, #-4]		//end program if 0
+  38 002c 00005CE3 		CMP		R12, #0		
+  39 0030 3400000A 		BEQ		end
+  40              		
+  41 0034 14019FE5 		LDR		R0, =printSEC		// get input for 2nd parameter
+  42 0038 FEFFFFEB 		BL		printf
+  43 003c 08104BE2 		ADD		R1, FP, #-8
+  44 0040 04019FE5 		LDR		R0, =formatSTR
+  45 0044 FEFFFFEB 		BL		scanf
+  46              		
+  47 0048 04019FE5 		LDR		R0, =printTHIRD		// get input for 3rd parameter
+  48 004c FEFFFFEB 		BL		printf
+  49 0050 0C104BE2 		ADD		R1, FP, #-12
+  50 0054 F0009FE5 		LDR		R0, =formatSTR
+  51 0058 FEFFFFEB 		BL		scanf
+  52              		
+  53 005c F4009FE5 		LDR		R0, =printFOURTH	// get input for 4th parameter
+  54 0060 FEFFFFEB 		BL		printf
+  55 0064 10104BE2 		ADD		R1, FP, #-16
+  56 0068 DC009FE5 		LDR		R0, =formatSTR
+  57 006c FEFFFFEB 		BL		scanf
+  58              		
+  59 0070 E4009FE5 		LDR		R0, =printFIFTH		// get input for 5th parameter
+  60 0074 FEFFFFEB 		BL		printf
+  61 0078 14104BE2 		ADD		R1, FP, #-20
+  62 007c C8009FE5 		LDR		R0, =formatSTR
+  63 0080 FEFFFFEB 		BL		scanf
+  64              		
+  65 0084 D4009FE5 		LDR		R0, =printSIXTH		// get input for 6th parameter
+  66 0088 FEFFFFEB 		BL		printf
+  67 008c 18104BE2 		ADD		R1, FP, #-24
+  68 0090 B4009FE5 		LDR		R0, =formatSTR
+  69 0094 FEFFFFEB 		BL		scanf
+  70              		
+  71 0098 0C301BE5 		LDR		R3, [FP, #-12]
+  72 009c 08201BE5 		LDR		R2, [FP, #-8]		// load in parameters for printf
+  73 00a0 04101BE5 		LDR		R1, [FP, #-4]
+  74              		
+  75 00a4 0CD04DE2 		SUB		SP, SP, #12
+  76 00a8 10C01BE5 		LDR		R12, [FP, #-16]		// allocate for extra parameters
+  77 00ac 00C08DE5 		STR		R12, [SP, #0]
+  78              		
+ARM GAS  stackframe2.s 			page 3
+
+
+  79 00b0 14C01BE5 		LDR		R12, [FP, #-20]
+  80 00b4 04C08DE5 		STR		R12, [SP, #4]
+  81              		
+  82 00b8 18C01BE5 		LDR		R12, [FP, #-24]
+  83 00bc 08C08DE5 		STR		R12, [SP, #8]
+  84              		
+  85 00c0 9C009FE5 		LDR		R0, =funcDisplay
+  86 00c4 FEFFFFEB 		BL		printf			// print out parameters
+  87 00c8 0CD08DE2 		ADD		SP, SP, #12
+  88              		
+  89 00cc 10301BE5 		LDR		R3, [FP, #-16]
+  90 00d0 0C201BE5 		LDR		R2, [FP, #-12]		// load in parameters for next function
+  91 00d4 08101BE5 		LDR		R1, [FP, #-8]
+  92 00d8 04001BE5 		LDR		R0, [FP, #-4]
+  93              		
+  94 00dc 08D04DE2 		SUB		SP, SP, #8
+  95 00e0 14C01BE5 		LDR		R12, [FP, #-20]		// allocate for extra parameters
+  96 00e4 00C08DE5 		STR		R12, [SP, #0]
+  97              		
+  98 00e8 18C01BE5 		LDR		R12, [FP, #-24]
+  99 00ec 04C08DE5 		STR		R12, [SP, #4]
+ 100              		
+ 101 00f0 080000EB 		BL		add5subtract1
+ 102 00f4 08D08DE2 		ADD		SP, SP,	#8
+ 103              		
+ 104 00f8 0010A0E1 		MOV		R1, R0
+ 105 00fc 64009FE5 		LDR		R0, =resultSTR		// print out final result
+ 106 0100 FEFFFFEB 		BL		printf
+ 107              		
+ 108 0104 C2FFFFEA 		B		loop
+ 109              		
+ 110              	end:
+ 111              	
+ 112 0108 18D08DE2 		ADD		SP, SP, #24
+ 113 010c 0048BDE8 		LDMIA		SP!, {FP, LR}
+ 114 0110 0000A0E3 		MOV		R0, #0
+ 115 0114 1EFF2FE1 		BX		LR
+ 116              		
+ 117              	add5subtract1:
+ 118              	// Adds first five input numbers, subtracts the sixth, 
+ 119              	// returns result to main
+ 120              	// Input: Parameters
+ 121              	// 		R0: first input
+ 122              	//		R1: second input
+ 123              	//		R2: third input
+ 124              	//		R3: fourth input
+ 125              	//		[FP, #8]: fifth input
+ 126              	//		[FP, #12]: sixth input
+ 127              	// 
+ 128              	// Output: Return Values
+ 129              	// 		R0: First 5 parameters added and subtracted by 6th parameter
+ 130              	
+ 131 0118 00482DE9 		STMDB		SP!, {FP, LR}
+ 132 011c 0DB0A0E1 		MOV		FP, SP
+ 133              		
+ 134 0120 010080E0 		ADD		R0, R0, R1
+ 135 0124 020080E0 		ADD		R0, R0, R2
+ARM GAS  stackframe2.s 			page 4
+
+
+ 136 0128 030080E0 		ADD		R0, R0, R3
+ 137              		
+ 138 012c 08C09BE5 		LDR		R12, [FP, #8]
+ 139 0130 0C0080E0 		ADD		R0, R0, R12
+ 140              		
+ 141 0134 0CC09BE5 		LDR		R12, [FP, #12]
+ 142 0138 0C0040E0 		SUB		R0, R0, R12
+ 143              		
+ 144              		
+ 145 013c 0048BDE8 		LDMIA		SP!, {FP, LR}
+ 146 0140 1EFF2FE1 		BX LR
+ 146      00000000 
+ 146      18000000 
+ 146      10010000 
+ 146      3F000000 
