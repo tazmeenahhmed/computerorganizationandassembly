@@ -1,0 +1,173 @@
+ARM GAS  floatdecode.s 			page 1
+
+
+   1              	.DATA
+   2              	
+   3 0000 54617A6D 	courseSTR:		.ASCIZ	"Tazmeen Ahmed\tCIST 039\n"
+   3      65656E20 
+   3      41686D65 
+   3      64094349 
+   3      53542030 
+   4 0018 0A546869 	introSTR:		.ASCIZ	"\nThis program will input and decode an IEEE-754 Floating Point Numbers. \nIt wi
+   4      73207072 
+   4      6F677261 
+   4      6D207769 
+   4      6C6C2069 
+   5 0114 0A456E74 	promptSTR:		.ASCIZ	"\nEnter the single precision floating point value (0 to exit): "
+   5      65722074 
+   5      68652073 
+   5      696E676C 
+   5      65207072 
+   6 0153 54686520 	firstSTR:		.ASCIZ	"The initial value is:\t\t"
+   6      696E6974 
+   6      69616C20 
+   6      76616C75 
+   6      65206973 
+   7 016b 0A546865 	secondSTR:		.ASCIZ	"\nThe value squared is:\t\t"
+   7      2076616C 
+   7      75652073 
+   7      71756172 
+   7      65642069 
+   8 0184 0A546865 	rootSTR:		.ASCIZ	"\nThe root of the value is:\t"
+   8      20726F6F 
+   8      74206F66 
+   8      20746865 
+   8      2076616C 
+   9 01a0 20452564 	exponent:		.ASCIZ	" E%d"
+   9      00
+  10              	
+  11 01a5 000000   	.balign			4
+  12 01a8 00000000 	fltInput:		.WORD	0
+  13 01ac 256600   	fltFMT:			.STRING	"%f" 
+  14              	
+  15              	.TEXT
+  16              	.GLOBAL main
+  17              	
+  18              	main:
+  19              	
+  20 0000 10402DE9 		STMDB			SP!, {R4, LR}
+  21              	
+  22 0004 00019FE5 		LDR			R0, =courseSTR
+  23 0008 FEFFFFEB 		BL			printf
+  24              		
+  25 000c FC009FE5 		LDR			R0, =introSTR
+  26 0010 FEFFFFEB 		BL			printf
+  27              		
+  28              	loop:
+  29              		
+  30 0014 F8009FE5 		LDR			R0, =promptSTR
+  31 0018 FEFFFFEB 		BL			printf
+  32              		
+ARM GAS  floatdecode.s 			page 2
+
+
+  33 001c F4109FE5 		LDR			R1, =fltInput			// read input
+  34 0020 F4009FE5 		LDR			R0, =fltFMT
+  35 0024 FEFFFFEB 		BL			scanf
+  36              		
+  37 0028 E8C09FE5 		LDR			R12, =fltInput			// read input out of memory
+  38 002c 00409CE5 		LDR			R4, [ R12 ]
+  39              		
+  40 0030 000054E3 		CMP			R4, #0					// determine if input is exit
+  41 0034 1200000A 		BEQ			final
+  42              		
+  43 0038 E0009FE5 		LDR			R0, =firstSTR			// print firstSTR 
+  44 003c FEFFFFEB 		BL			printf
+  45 0040 0400A0E1 		MOV			R0, R4
+  46 0044 110000EB 		BL			decodeFunction			// call function first time
+  47              		
+  48 0048 D4009FE5 		LDR			R0, =secondSTR			
+  49 004c FEFFFFEB 		BL			printf
+  50 0050 904A00EE 		VMOV			S1, R4
+  51 0054 A00A60EE 		VMUL.F32		S1, S1, S1
+  52 0058 900A10EE 		VMOV			R0, S1
+  53 005c 0B0000EB 		BL			decodeFunction			// call function for squared 
+  54              		
+  55 0060 04C0B0E1 		MOVS			R12, R4				// determine if negative
+  56 0064 EAFFFF4A 		BMI			loop
+  57              		
+  58 0068 B8009FE5 		LDR			R0, =rootSTR			// call function for root if pos
+  59 006c FEFFFFEB 		BL			printf
+  60 0070 904A00EE 		VMOV			S1, R4
+  61 0074 E00AF1EE 		VSQRT.F32		S1, S1
+  62 0078 900A10EE 		VMOV			R0, S1
+  63 007c 030000EB 		BL			decodeFunction
+  64              		
+  65 0080 E3FFFFEA 		B			loop
+  66              		
+  67              	final:
+  68              		
+  69 0084 1040BDE8 		LDMIA			SP!, {R4, LR}
+  70              		
+  71 0088 0000A0E3 		MOV			R0, #0				// end program
+  72 008c 1EFF2FE1 		BX			LR
+  73              		
+  74              	decodeFunction:
+  75              	// Displays the decoded input to console, alongside its
+  76              	//	value squared and the root of the value if positive
+  77              	//
+  78              	// Input: Paramaters
+  79              	// 		R0: Address of input
+  80              	// 
+  81              	// Output: Return Values
+  82              	// 		None
+  83              	
+  84 0090 E0402DE9 		STMDB		SP!, {R5, R6, R7, LR}
+  85 0094 0050A0E1 		MOV		R5, R0
+  86              	
+  87 0098 05C0B0E1 		MOVS		R12, R5					// figure out and print sign
+  88 009c 0200004A 		BMI		printNegative
+  89 00a0 2B00A0E3 		MOV		R0, #'+'
+ARM GAS  floatdecode.s 			page 3
+
+
+  90 00a4 FEFFFFEB 		BL			putchar
+  91              			
+  92 00a8 010000EA 		B			continue
+  93              			
+  94              	printNegative:		
+  95              	
+  96 00ac 2D00A0E3 		MOV		R0, #'-'
+  97 00b0 FEFFFFEB 		BL		putchar
+  98              	
+  99              	continue:							// prepare for loop to print fraction
+ 100              			
+ 101 00b4 3100A0E3 		MOV		R0, #'1'
+ 102 00b8 FEFFFFEB 		BL		putchar
+ 103 00bc 2E00A0E3 		MOV		R0, #'.'
+ 104 00c0 FEFFFFEB 		BL		putchar
+ 105              			
+ 106 00c4 0774A0E1 		LSL		R7, R7, #8
+ 107 00c8 1760A0E3 		MOV		R6, #23
+ 108              			
+ 109              	functionLoop:
+ 110              	
+ 111 00cc 8770B0E1 		LSLS		R7, R7, #1
+ 112 00d0 0200002A 		BCS		printOne
+ 113 00d4 3000A0E3 		MOV		R0, #'0'
+ 114 00d8 FEFFFFEB 		BL		putchar
+ 115              			
+ 116 00dc 010000EA 		B		next
+ 117              			
+ 118              	printOne:
+ 119              	
+ 120 00e0 3100A0E3 		MOV		R0, #'1'
+ 121 00e4 FEFFFFEB 		BL		putchar
+ 122              			
+ 123              	next:
+ 124              	
+ 125 00e8 016056E2 		SUBS		R6, R6, #1
+ 126 00ec F6FFFFCA 		BGT		functionLoop
+ 127              			
+ 128 00f0 A51BA0E1 		LSR		R1, R5, #23				// calculate and print exponent
+ 129 00f4 FF1001E2 		AND		R1, R1, #0b11111111
+ 130 00f8 7F1041E2 		SUB		R1, R1, #127
+ 131 00fc 28009FE5 		LDR		R0, =exponent
+ 132 0100 FEFFFFEB 		BL		printf
+ 133              		
+ 134 0104 E040BDE8 		LDMIA		SP!, {R5, R6, R7, LR}
+ 135 0108 1EFF2FE1 		BX		LR
+ 135      00000000 
+ 135      18000000 
+ 135      14010000 
+ 135      A8010000 

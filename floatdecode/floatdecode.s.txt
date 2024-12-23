@@ -1,0 +1,136 @@
+.DATA
+
+courseSTR:		.ASCIZ	"Tazmeen Ahmed\tCIST 039\n"
+introSTR:		.ASCIZ	"\nThis program will input and decode an IEEE-754 Floating Point Numbers. \nIt will square the root of the number and decode it. \nNext, if possible, it will take the square root of the number and decode it. \nThis will repreat until the user enters Zero.\n"
+promptSTR:		.ASCIZ	"\nEnter the single precision floating point value (0 to exit): "
+firstSTR:		.ASCIZ	"The initial value is:\t\t"
+secondSTR:		.ASCIZ	"\nThe value squared is:\t\t"
+rootSTR:		.ASCIZ	"\nThe root of the value is:\t"
+exponent:		.ASCIZ	" E%d"
+
+.balign			4
+fltInput:		.WORD	0
+fltFMT:			.STRING	"%f" 
+
+.TEXT
+.GLOBAL main
+
+main:
+
+	STMDB			SP!, {R4, LR}
+
+	LDR			R0, =courseSTR
+	BL			printf
+	
+	LDR			R0, =introSTR
+	BL			printf
+	
+loop:
+	
+	LDR			R0, =promptSTR
+	BL			printf
+	
+	LDR			R1, =fltInput			// read input
+	LDR			R0, =fltFMT
+	BL			scanf
+	
+	LDR			R12, =fltInput			// read input out of memory
+	LDR			R4, [ R12 ]
+	
+	CMP			R4, #0				// determine if input is exit
+	BEQ			final
+	
+	LDR			R0, =firstSTR			// print firstSTR 
+	BL			printf
+	MOV			R0, R4
+	BL			decodeFunction			// call function first time
+	
+	LDR			R0, =secondSTR			
+	BL			printf
+	VMOV			S1, R4
+	VMUL.F32		S1, S1, S1
+	VMOV			R0, S1
+	BL			decodeFunction			// call function for squared 
+	
+	MOVS			R12, R4				// determine if negative
+	BMI			loop
+	
+	LDR			R0, =rootSTR			// call function for root if pos
+	BL			printf
+	VMOV			S1, R4
+	VSQRT.F32		S1, S1
+	VMOV			R0, S1
+	BL			decodeFunction
+	
+	B			loop
+	
+final:
+	
+	LDMIA			SP!, {R4, LR}
+	
+	MOV			R0, #0				// end program
+	BX			LR
+	
+decodeFunction:
+// Displays the decoded input to console, alongside its
+//	value squared and the root of the value if positive
+//
+// Input: Paramaters
+// 		R0: Address of input
+// 
+// Output: Return Values
+// 		None
+
+	STMDB		SP!, {R5, R6, R7, LR}
+	MOV		R5, R0
+
+	MOVS		R12, R5					// figure out and print sign
+	BMI		printNegative
+	MOV		R0, #'+'
+	BL		putchar
+		
+	B		continue
+		
+printNegative:		
+
+	MOV		R0, #'-'
+	BL		putchar
+
+continue:							// prepare for loop to print fraction
+		
+	MOV		R0, #'1'
+	BL		putchar
+	MOV		R0, #'.'
+	BL		putchar
+		
+	LSL		R7, R7, #8
+	MOV		R6, #23
+		
+functionLoop:
+
+	LSLS	R7, R7, #1
+	BCS		printOne
+	MOV		R0, #'0'
+	BL		putchar
+		
+	B		next
+		
+printOne:
+
+	MOV		R0, #'1'
+	BL		putchar
+		
+next:
+
+	SUBS	R6, R6, #1
+	BGT		functionLoop
+		
+	LSR		R1, R5, #23				// calculate and print exponent
+	AND		R1, R1, #0b11111111
+	SUB		R1, R1, #127
+	LDR		R0, =exponent
+	BL		printf
+	
+	LDMIA		SP!, {R5, R6, R7, LR}
+	BX		LR
+
