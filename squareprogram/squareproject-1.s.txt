@@ -1,0 +1,43 @@
+.DATA
+tempRet:		.WORD	1
+tempR4:			.WORD	1
+
+courseStr:		.ASCIZ	"Tazmeen Ahmed\tCIST 039\n"
+titleStr:		.ASCIZ	"Number\tSquared\n"
+printFor:		.ASCIZ	"%d\t %d\n"
+
+.TEXT
+.GLOBAL main
+
+main: 
+		LDR		R12, = tempRet
+		STR		LR, [ R12 ]
+		LDR		R12, = tempR4
+		STR		R4, [ R12 ] 
+		
+		LDR		R0, = courseStr
+		BL		printf
+		
+		LDR		R0, = titleStr
+		BL		printf
+		
+		MOV		R4, #0			// sets counter to zero
+		
+loop:							// label, where BLE redirects
+		MUL		R2, R4, R4		// paramter for the square
+		MOV		R1, R4			// paramter for what is doing the squaring
+		LDR		R0, = printFor		// asciz formatting
+		BL		printf
+		
+		ADD		R4, R4, #1		// increment the counter
+		
+		CMP 		R4, #99
+		BLE		loop
+		
+		LDR		R12, = tempRet
+		LDR		LR, [ R12 ]
+		LDR		R12, = tempR4
+		LDR		R4, [ R12 ]
+		
+		MOV		R0, #0
+		BX		LR

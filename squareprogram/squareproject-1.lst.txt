@@ -1,0 +1,58 @@
+ARM GAS  squareproject.s 			page 1
+
+
+   1              	.DATA
+   2 0000 01000000 	tempRet:		.WORD	1
+   3 0004 01000000 	tempR4:			.WORD	1
+   4              	
+   5 0008 54617A6D 	courseStr:		.ASCIZ	"Tazmeen Ahmed\tCIST 039\n"
+   5      65656E20 
+   5      41686D65 
+   5      64094349 
+   5      53542030 
+   6 0020 4E756D62 	titleStr:		.ASCIZ	"Number\tSquared\n"
+   6      65720953 
+   6      71756172 
+   6      65640A00 
+   7 0030 25640920 	printFor:		.ASCIZ	"%d\t %d\n"
+   7      25640A00 
+   8              	
+   9              	.TEXT
+  10              	.GLOBAL main
+  11              	
+  12              	main: 
+  13 0000 50C09FE5 			LDR		R12, = tempRet
+  14 0004 00E08CE5 			STR		LR, [ R12 ]
+  15 0008 4CC09FE5 			LDR		R12, = tempR4
+  16 000c 00408CE5 			STR		R4, [ R12 ] 
+  17              			
+  18 0010 48009FE5 			LDR		R0, = courseStr
+  19 0014 FEFFFFEB 			BL		printf
+  20              			
+  21 0018 44009FE5 			LDR		R0, = titleStr
+  22 001c FEFFFFEB 			BL		printf
+  23              			
+  24 0020 0040A0E3 			MOV		R4, #0			// sets counter to zero
+  25              			
+  26              	loop:							// label, where BNE redirects
+  27 0024 940402E0 			MUL		R2, R4, R4		// paramter for the square
+  28 0028 0410A0E1 			MOV		R1, R4			// paramter for what is doing the squaring
+  29 002c 34009FE5 			LDR		R0, = printFor		// asciz formatting
+  30 0030 FEFFFFEB 			BL		printf
+  31              			
+  32 0034 014084E2 			ADD		R4, R4, #1		// increment the counter
+  33              			
+  34 0038 630054E3 			CMP 		R4, #99
+  35 003c F8FFFFDA 			BLE		loop
+  36              			
+  37 0040 10C09FE5 			LDR		R12, = tempRet
+  38 0044 00E09CE5 			LDR		LR, [ R12 ]
+  39 0048 0CC09FE5 			LDR		R12, = tempR4
+  40 004c 00409CE5 			LDR		R4, [ R12 ]
+  41              			
+  42 0050 0000A0E3 			MOV		R0, #0
+  43 0054 1EFF2FE1 			BX		LR
+  43      00000000 
+  43      04000000 
+  43      08000000 
+  43      20000000 
