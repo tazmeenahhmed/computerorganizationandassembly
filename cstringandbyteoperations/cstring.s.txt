@@ -1,0 +1,310 @@
+.DATA
+
+courseSTR:			.ASCIZ		"Tazmeen Ahmed\tCIST 039\n"
+promptSTR:			.ASCIZ		"Enter a string: "
+countMessage:		.STRING		"There are %d characters in: \"%s\".\n"
+countVowelsMessage: .STRING		"There are %d vowels in: \"%s\".\n"
+firstUpperMessage:	.STRING		"Upper case first characters: \"%s\".\n"
+allUpperMessage:	.STRING		"Shouting: \"%s\".\n"
+extraSpaceMessage:	.STRING		"Extra spaces removed: \"%s\".\n"
+
+					.SET	BUFFER_SIZE, 100
+inputBuffer: 		.SKIP	BUFFER_SIZE+1
+
+.TEXT
+.GLOBAL main
+
+main:
+// Input:
+// 		none
+// Output:
+//		none
+
+	STMDB	SP!, {LR}
+	
+	LDR		R0, =courseSTR				 	
+	BL		printf
+	
+	LDR		R0, =promptSTR					// prompt user for input
+	BL		printf
+	
+	MOV		R1, #99							// call function to get input from console
+	LDR		R0, =inputBuffer
+	BL		getLine
+	
+	LDR		R0, =inputBuffer				// call function to count characters in input
+	BL		countCharacter
+	
+	LDR		R2, =inputBuffer				// print out character count
+	MOV		R1, R0
+	LDR		R0, =countMessage
+	BL		printf
+	
+	LDR		R0, =inputBuffer				// call function to count vowels in input
+	BL		countVowel
+	
+	LDR		R2, =inputBuffer				// print out vowel count
+	MOV		R1, R0
+	LDR		R0, =countVowelsMessage
+	BL		printf
+	
+	LDR		R0, =inputBuffer				// call function to convert first letter of each word to upper-case
+	BL		upperFirstLetter
+	
+	LDR		R1, =inputBuffer				// print out result
+	LDR		R0, =firstUpperMessage
+	BL		printf
+	
+	LDR		R0, =inputBuffer				// call function to upper-case every character
+	BL		upperEveryChar
+	
+	LDR		R1, =inputBuffer				// print out result
+	LDR		R0, =allUpperMessage
+	BL		printf
+	
+	LDR		R0, =inputBuffer				// call function to remove extra spaces
+	BL		removeExcessSpace
+		
+	LDR		R1, =inputBuffer				// print out result
+	LDR		R0, =extraSpaceMessage
+	BL		printf
+	
+	LDMIA	SP!, {LR}
+	MOV		R0, #0
+	BX		LR
+	
+	
+.eject
+getLine:
+// Input:
+// 		R0: Address of the start of the string
+//		R1: Is the maximum length of the string 
+// Output:
+//		none
+
+	STMDB		SP!, {R4, R5, R6, LR}
+	
+	MOV		R4, R0							// move address and counter into protected registers		
+	MOV		R5, #0
+	MOV		R6, R1
+	
+loop:
+	
+	BL		getchar							// get character from console, store in inpuBuffer
+	CMP		R0, #'\n'						// if character is null, return function
+	BEQ		done
+	STRB		R0, [R4, R5]
+	ADD		R5, R5, #1
+	CMP		R5, R6
+	BLT		loop
+	
+done:
+	
+	MOV		R0, #00							// null terminate the string
+	STRB		R0, [R4, R5]
+	
+	LDMIA		SP!, {R4, R5, R6, LR}
+	BX		LR
+
+
+	
+.eject
+countCharacter:
+// Input:
+// 		R0: Address of the start of the string
+// Output:
+//		R0: Count of characters
+	
+	MOV		R1, #0							// set up the counter
+	
+countLoop:
+
+	LDRB		R2, [ R0 ]						// count character byte by byte
+	CMP		R2, #00
+	BEQ		countDone
+	
+	ADD		R1, R1, #1
+	ADD		R0, R0, #1
+	B		countLoop
+	
+countDone:
+	
+	MOV		R0, R1							// return count
+	BX		LR
+
+
+.eject
+toUpper:
+// Input:
+// 		R0: A character
+// Output:
+//		R0: Uppercase version of character if letter
+
+
+	CMP		R0, #'a'						// return if lower than 'a'
+	BXLO		LR
+	
+	CMP		R0, #'z'						// return if higher than 'z'
+	BXHI		LR
+	
+	AND		R0, R0, #0b11011111					// convert lower-case letter to upper-case and return
+	BX		LR	
+
+
+.eject
+countVowel:
+// Input:
+// 		R0: Address of the start of the string
+// Output:
+//		R0: Count of characters
+
+	STMDB		SP!, {LR}
+	MOV		R1, R0							
+	MOV		R2, #0							// establish counter
+	
+vowelLoop:
+	
+	LDRB		R0, [ R1 ]						// load current character, end function if null
+	CMP		R0, #00
+	BEQ		next
+							
+	BL		toUpper							// convert character to upper-case if possible
+	
+	CMP		R0, #'A'						// check if vowel, increment counter if it is
+	BEQ		vowelIncrement
+	
+	CMP		R0, #'E'
+	BEQ		vowelIncrement
+	
+	CMP		R0, #'I'
+	BEQ		vowelIncrement
+	
+	CMP		R0, #'O'
+	BEQ		vowelIncrement
+	
+	CMP		R0, #'U'
+	BEQ		vowelIncrement
+	
+	ADD		R1, R1, #1
+	B		vowelLoop
+	
+vowelIncrement:
+
+	ADD		R2, R2, #1
+	ADD		R1, R1, #1
+	B		vowelLoop
+	
+next:
+	
+	MOV		R0, R2							// move counter into R0, return function
+	LDMIA		SP!, {LR}
+	BX		LR
+	
+
+.eject
+upperFirstLetter:
+// Input:
+// 		R0: Address of the start of the string
+// Output:
+//		none:
+	
+	STMDB		SP!, {LR}
+	MOV		R1, R0
+	
+	LDRB		R0, [R1]					// make first character upper-case
+	BL		toUpper
+	STRB		R0, [R1]
+	
+firstLoop:
+
+	ADD		R1, R1, #1					// increment address to next byte
+	
+	LDRB	R0, [R1]						// check if null
+	CMP		R0, #00
+	BEQ		finish
+	
+	CMP		R0, #' '					// check if current character is space
+	BNE		firstLoop
+	
+	LDRB		R0, [R1, #01]					// upper-case following character if character was space
+	BL		toUpper
+	STRB		R0, [R1, #01]
+	B		firstLoop		
+	
+finish:
+
+	LDMIA		SP!, {LR}					// return function
+	BX		LR
+	
+
+.eject
+upperEveryChar:
+// Input:
+// 		R0: Address of the start of the string
+// Output:
+//		none
+
+	STMDB		SP!, {LR}						
+	MOV		R1, R0						// secure address out of future parameter
+	
+upperLoop:
+
+	LDRB		R0, [R1]					// check if current character is null
+	CMP		R0, #00
+	BEQ		stop
+	
+	BL		toUpper						// upper-case current character if applicable
+	STRB		R0, [R1]
+	
+	ADD		R1, R1, #1					// increment address, loop
+	B		upperLoop
+	
+stop:
+
+	LDMIA		SP!, {LR}					// return function
+	BX		LR
+
+
+
+.eject
+removeExcessSpace:
+// Input:
+// 		R0: Address of the start of the string
+// Output:
+//		none
+
+	STMDB		SP!, {LR}
+	
+	MOV		R1, R0						// source pointer
+	MOV		R2, R0						// destination pointer
+	
+excessLoop:
+
+	LDRB		R0, [R1]					// current character + check if null
+	CMP		R0, #00
+	BEQ		end
+	
+	CMP		R0, #' '					// check if current is a space
+	BNE		rewrite
+	
+	LDRB		R3, [R1, #01]					// check if the next character is also a space
+	CMP		R3, R0
+	BNE		rewrite
+	
+	ADD		R1, R1, #1
+	B		excessLoop					// skip over excess space
+	
+rewrite:
+	
+	STRB		R0, [R2]					// write current character to destination pointer
+	ADD		R2, R2, #1
+	ADD		R1, R1, #1
+	B		excessLoop
+	
+end:
+	
+	MOV		R0, #00
+	STRB		R0, [R2]
+	
+	LDMIA		SP!, {LR}
+	BX		LR

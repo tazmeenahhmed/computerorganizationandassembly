@@ -1,0 +1,373 @@
+ARM GAS  cstring.s 			page 1
+
+
+   1              	.DATA
+   2              	
+   3 0000 54617A6D 	courseSTR:			.ASCIZ		"Tazmeen Ahmed\tCIST 039\n"
+   3      65656E20 
+   3      41686D65 
+   3      64094349 
+   3      53542030 
+   4 0018 456E7465 	promptSTR:			.ASCIZ		"Enter a string: "
+   4      72206120 
+   4      73747269 
+   4      6E673A20 
+   4      00
+   5 0029 54686572 	countMessage:		.STRING		"There are %d characters in: \"%s\".\n"
+   5      65206172 
+   5      65202564 
+   5      20636861 
+   5      72616374 
+   6 004c 54686572 	countVowelsMessage: .STRING		"There are %d vowels in: \"%s\".\n"
+   6      65206172 
+   6      65202564 
+   6      20766F77 
+   6      656C7320 
+   7 006b 55707065 	firstUpperMessage:	.STRING		"Upper case first characters: \"%s\".\n"
+   7      72206361 
+   7      73652066 
+   7      69727374 
+   7      20636861 
+   8 008f 53686F75 	allUpperMessage:	.STRING		"Shouting: \"%s\".\n"
+   8      74696E67 
+   8      3A202225 
+   8      73222E0A 
+   8      00
+   9 00a0 45787472 	extraSpaceMessage:	.STRING		"Extra spaces removed: \"%s\".\n"
+   9      61207370 
+   9      61636573 
+   9      2072656D 
+   9      6F766564 
+  10              	
+  11              						.SET	BUFFER_SIZE, 100
+  12 00bd 00000000 	inputBuffer: 		.SKIP	BUFFER_SIZE+1
+  12      00000000 
+  12      00000000 
+  12      00000000 
+  12      00000000 
+  13              	
+  14              	.TEXT
+  15              	.GLOBAL main
+  16              	
+  17              	main:
+  18              	// Input:
+  19              	// 		none
+  20              	// Output:
+  21              	//		none
+  22              	
+  23 0000 00402DE9 		STMDB	SP!, {LR}
+  24              		
+  25 0004 2C029FE5 		LDR		R0, =courseSTR				 	
+ARM GAS  cstring.s 			page 2
+
+
+  26 0008 FEFFFFEB 		BL		printf
+  27              		
+  28 000c 28029FE5 		LDR		R0, =promptSTR					// prompt user for input
+  29 0010 FEFFFFEB 		BL		printf
+  30              		
+  31 0014 6310A0E3 		MOV		R1, #99							// call function to get input from console
+  32 0018 20029FE5 		LDR		R0, =inputBuffer
+  33 001c 1D0000EB 		BL		getLine
+  34              		
+  35 0020 18029FE5 		LDR		R0, =inputBuffer				// call function to count characters in input
+  36 0024 2A0000EB 		BL		countCharacter
+  37              		
+  38 0028 10229FE5 		LDR		R2, =inputBuffer				// print out character count
+  39 002c 0010A0E1 		MOV		R1, R0
+  40 0030 0C029FE5 		LDR		R0, =countMessage
+  41 0034 FEFFFFEB 		BL		printf
+  42              		
+  43 0038 00029FE5 		LDR		R0, =inputBuffer				// call function to count vowels in input
+  44 003c 330000EB 		BL		countVowel
+  45              		
+  46 0040 F8219FE5 		LDR		R2, =inputBuffer				// print out vowel count
+  47 0044 0010A0E1 		MOV		R1, R0
+  48 0048 F8019FE5 		LDR		R0, =countVowelsMessage
+  49 004c FEFFFFEB 		BL		printf
+  50              		
+  51 0050 E8019FE5 		LDR		R0, =inputBuffer				// call function to convert first letter of each word to upper-case
+  52 0054 460000EB 		BL		upperFirstLetter
+  53              		
+  54 0058 E0119FE5 		LDR		R1, =inputBuffer				// print out result
+  55 005c E8019FE5 		LDR		R0, =firstUpperMessage
+  56 0060 FEFFFFEB 		BL		printf
+  57              		
+  58 0064 D4019FE5 		LDR		R0, =inputBuffer				// call function to upper-case every character
+  59 0068 520000EB 		BL		upperEveryChar
+  60              		
+  61 006c CC119FE5 		LDR		R1, =inputBuffer				// print out result
+  62 0070 D8019FE5 		LDR		R0, =allUpperMessage
+  63 0074 FEFFFFEB 		BL		printf
+  64              		
+  65 0078 C0019FE5 		LDR		R0, =inputBuffer				// call function to remove extra spaces
+  66 007c 580000EB 		BL		removeExcessSpace
+  67              			
+  68 0080 B8119FE5 		LDR		R1, =inputBuffer				// print out result
+  69 0084 C8019FE5 		LDR		R0, =extraSpaceMessage
+  70 0088 FEFFFFEB 		BL		printf
+  71              		
+  72 008c 0040BDE8 		LDMIA	SP!, {LR}
+  73 0090 0000A0E3 		MOV		R0, #0
+  74 0094 1EFF2FE1 		BX		LR
+  75              		
+  76              		
+  77              	.eject
+ARM GAS  cstring.s 			page 3
+
+
+  78              	getLine:
+  79              	// Input:
+  80              	// 		R0: Address of the start of the string
+  81              	//		R1: Is the maximum length of the string 
+  82              	// Output:
+  83              	//		none
+  84              	
+  85 0098 70402DE9 		STMDB		SP!, {R4, R5, R6, LR}
+  86              		
+  87 009c 0040A0E1 		MOV		R4, R0							// move address and counter into protected registers		
+  88 00a0 0050A0E3 		MOV		R5, #0
+  89 00a4 0160A0E1 		MOV		R6, R1
+  90              		
+  91              	loop:
+  92              		
+  93 00a8 FEFFFFEB 		BL		getchar							// get character from console, store in inpuBuffer
+  94 00ac 0A0050E3 		CMP		R0, #'\n'						// if character is null, return function
+  95 00b0 0300000A 		BEQ		done
+  96 00b4 0500C4E7 		STRB		R0, [R4, R5]
+  97 00b8 015085E2 		ADD		R5, R5, #1
+  98 00bc 060055E1 		CMP		R5, R6
+  99 00c0 F8FFFFBA 		BLT		loop
+ 100              		
+ 101              	done:
+ 102              		
+ 103 00c4 0000A0E3 		MOV		R0, #00							// null terminate the string
+ 104 00c8 0500C4E7 		STRB		R0, [R4, R5]
+ 105              		
+ 106 00cc 7040BDE8 		LDMIA		SP!, {R4, R5, R6, LR}
+ 107 00d0 1EFF2FE1 		BX		LR
+ 108              	
+ 109              	
+ 110              		
+ 111              	.eject
+ARM GAS  cstring.s 			page 4
+
+
+ 112              	countCharacter:
+ 113              	// Input:
+ 114              	// 		R0: Address of the start of the string
+ 115              	// Output:
+ 116              	//		R0: Count of characters
+ 117              		
+ 118 00d4 0010A0E3 		MOV		R1, #0							// set up the counter
+ 119              		
+ 120              	countLoop:
+ 121              	
+ 122 00d8 0020D0E5 		LDRB		R2, [ R0 ]						// count character byte by byte
+ 123 00dc 000052E3 		CMP		R2, #00
+ 124 00e0 0200000A 		BEQ		countDone
+ 125              		
+ 126 00e4 011081E2 		ADD		R1, R1, #1
+ 127 00e8 010080E2 		ADD		R0, R0, #1
+ 128 00ec F9FFFFEA 		B		countLoop
+ 129              		
+ 130              	countDone:
+ 131              		
+ 132 00f0 0100A0E1 		MOV		R0, R1							// return count
+ 133 00f4 1EFF2FE1 		BX		LR
+ 134              	
+ 135              	
+ 136              	.eject
+ARM GAS  cstring.s 			page 5
+
+
+ 137              	toUpper:
+ 138              	// Input:
+ 139              	// 		R0: A character
+ 140              	// Output:
+ 141              	//		R0: Uppercase version of character if letter
+ 142              	
+ 143              	
+ 144 00f8 610050E3 		CMP		R0, #'a'						// return if lower than 'a'
+ 145 00fc 1EFF2F31 		BXLO		LR
+ 146              		
+ 147 0100 7A0050E3 		CMP		R0, #'z'						// return if higher than 'z'
+ 148 0104 1EFF2F81 		BXHI		LR
+ 149              		
+ 150 0108 DF0000E2 		AND		R0, R0, #0b11011111					// convert lower-case letter to upper-case and return
+ 151 010c 1EFF2FE1 		BX		LR	
+ 152              	
+ 153              	
+ 154              	.eject
+ARM GAS  cstring.s 			page 6
+
+
+ 155              	countVowel:
+ 156              	// Input:
+ 157              	// 		R0: Address of the start of the string
+ 158              	// Output:
+ 159              	//		R0: Count of characters
+ 160              	
+ 161 0110 00402DE9 		STMDB		SP!, {LR}
+ 162 0114 0010A0E1 		MOV		R1, R0							
+ 163 0118 0020A0E3 		MOV		R2, #0							// establish counter
+ 164              		
+ 165              	vowelLoop:
+ 166              		
+ 167 011c 0000D1E5 		LDRB		R0, [ R1 ]						// load current character, end function if null
+ 168 0120 000050E3 		CMP		R0, #00
+ 169 0124 0F00000A 		BEQ		next
+ 170              								
+ 171 0128 F2FFFFEB 		BL		toUpper							// convert character to upper-case if possible
+ 172              		
+ 173 012c 410050E3 		CMP		R0, #'A'						// check if vowel, increment counter if it is
+ 174 0130 0900000A 		BEQ		vowelIncrement
+ 175              		
+ 176 0134 450050E3 		CMP		R0, #'E'
+ 177 0138 0700000A 		BEQ		vowelIncrement
+ 178              		
+ 179 013c 490050E3 		CMP		R0, #'I'
+ 180 0140 0500000A 		BEQ		vowelIncrement
+ 181              		
+ 182 0144 4F0050E3 		CMP		R0, #'O'
+ 183 0148 0300000A 		BEQ		vowelIncrement
+ 184              		
+ 185 014c 550050E3 		CMP		R0, #'U'
+ 186 0150 0100000A 		BEQ		vowelIncrement
+ 187              		
+ 188 0154 011081E2 		ADD		R1, R1, #1
+ 189 0158 EFFFFFEA 		B		vowelLoop
+ 190              		
+ 191              	vowelIncrement:
+ 192              	
+ 193 015c 012082E2 		ADD		R2, R2, #1
+ 194 0160 011081E2 		ADD		R1, R1, #1
+ 195 0164 ECFFFFEA 		B		vowelLoop
+ 196              		
+ 197              	next:
+ 198              		
+ 199 0168 0200A0E1 		MOV		R0, R2							// move counter into R0, return function
+ 200 016c 0040BDE8 		LDMIA		SP!, {LR}
+ 201 0170 1EFF2FE1 		BX		LR
+ 202              		
+ 203              	
+ 204              	.eject
+ARM GAS  cstring.s 			page 7
+
+
+ 205              	upperFirstLetter:
+ 206              	// Input:
+ 207              	// 		R0: Address of the start of the string
+ 208              	// Output:
+ 209              	//		none:
+ 210              		
+ 211 0174 00402DE9 		STMDB		SP!, {LR}
+ 212 0178 0010A0E1 		MOV		R1, R0
+ 213              		
+ 214 017c 0000D1E5 		LDRB		R0, [R1]					// make first character upper-case
+ 215 0180 DCFFFFEB 		BL		toUpper
+ 216 0184 0000C1E5 		STRB		R0, [R1]
+ 217              		
+ 218              	firstLoop:
+ 219              	
+ 220 0188 011081E2 		ADD		R1, R1, #1					// increment address to next byte
+ 221              		
+ 222 018c 0000D1E5 		LDRB	R0, [R1]						// check if null
+ 223 0190 000050E3 		CMP		R0, #00
+ 224 0194 0500000A 		BEQ		finish
+ 225              		
+ 226 0198 200050E3 		CMP		R0, #' '					// check if current character is space
+ 227 019c F9FFFF1A 		BNE		firstLoop
+ 228              		
+ 229 01a0 0100D1E5 		LDRB		R0, [R1, #01]					// upper-case following character if character was space
+ 230 01a4 D3FFFFEB 		BL		toUpper
+ 231 01a8 0100C1E5 		STRB		R0, [R1, #01]
+ 232 01ac F5FFFFEA 		B		firstLoop		
+ 233              		
+ 234              	finish:
+ 235              	
+ 236 01b0 0040BDE8 		LDMIA		SP!, {LR}					// return function
+ 237 01b4 1EFF2FE1 		BX		LR
+ 238              		
+ 239              	
+ 240              	.eject
+ARM GAS  cstring.s 			page 8
+
+
+ 241              	upperEveryChar:
+ 242              	// Input:
+ 243              	// 		R0: Address of the start of the string
+ 244              	// Output:
+ 245              	//		none
+ 246              	
+ 247 01b8 00402DE9 		STMDB		SP!, {LR}						
+ 248 01bc 0010A0E1 		MOV		R1, R0						// secure address out of future parameter
+ 249              		
+ 250              	upperLoop:
+ 251              	
+ 252 01c0 0000D1E5 		LDRB		R0, [R1]					// check if current character is null
+ 253 01c4 000050E3 		CMP		R0, #00
+ 254 01c8 0300000A 		BEQ		stop
+ 255              		
+ 256 01cc C9FFFFEB 		BL		toUpper						// upper-case current character if applicable
+ 257 01d0 0000C1E5 		STRB		R0, [R1]
+ 258              		
+ 259 01d4 011081E2 		ADD		R1, R1, #1					// increment address, loop
+ 260 01d8 F8FFFFEA 		B		upperLoop
+ 261              		
+ 262              	stop:
+ 263              	
+ 264 01dc 0040BDE8 		LDMIA		SP!, {LR}					// return function
+ 265 01e0 1EFF2FE1 		BX		LR
+ 266              	
+ 267              	
+ 268              	
+ 269              	.eject
+ARM GAS  cstring.s 			page 9
+
+
+ 270              	removeExcessSpace:
+ 271              	// Input:
+ 272              	// 		R0: Address of the start of the string
+ 273              	// Output:
+ 274              	//		none
+ 275              	
+ 276 01e4 00402DE9 		STMDB		SP!, {LR}
+ 277              		
+ 278 01e8 0010A0E1 		MOV		R1, R0						// source pointer
+ 279 01ec 0020A0E1 		MOV		R2, R0						// destination pointer
+ 280              		
+ 281              	excessLoop:
+ 282              	
+ 283 01f0 0000D1E5 		LDRB		R0, [R1]					// current character + check if null
+ 284 01f4 000050E3 		CMP		R0, #00
+ 285 01f8 0A00000A 		BEQ		end
+ 286              		
+ 287 01fc 200050E3 		CMP		R0, #' '					// check if current is a space
+ 288 0200 0400001A 		BNE		rewrite
+ 289              		
+ 290 0204 0130D1E5 		LDRB		R3, [R1, #01]					// check if the next character is also a space
+ 291 0208 000053E1 		CMP		R3, R0
+ 292 020c 0100001A 		BNE		rewrite
+ 293              		
+ 294 0210 011081E2 		ADD		R1, R1, #1
+ 295 0214 F5FFFFEA 		B		excessLoop					// skip over excess space
+ 296              		
+ 297              	rewrite:
+ 298              		
+ 299 0218 0000C2E5 		STRB		R0, [R2]					// write current character to destination pointer
+ 300 021c 012082E2 		ADD		R2, R2, #1
+ 301 0220 011081E2 		ADD		R1, R1, #1
+ 302 0224 F1FFFFEA 		B		excessLoop
+ 303              		
+ 304              	end:
+ 305              		
+ 306 0228 0000A0E3 		MOV		R0, #00
+ 307 022c 0000C2E5 		STRB		R0, [R2]
+ 308              		
+ 309 0230 0040BDE8 		LDMIA		SP!, {LR}
+ 310 0234 1EFF2FE1 		BX		LR
+ 310      00000000 
+ 310      18000000 
+ 310      BD000000 
+ 310      29000000 
