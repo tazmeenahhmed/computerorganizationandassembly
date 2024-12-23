@@ -1,0 +1,29 @@
+ARM GAS  helloworld.s 			page 1
+
+
+   1              	.DATA
+   2 0000 01000000 	tempLoc:		.WORD	1
+   3              	
+   4 0004 48656C6C 	helloString:	.ASCIZ "Hello World!\n"
+   4      6F20576F 
+   4      726C6421 
+   4      0A00
+   5              	
+   6              	.TEXT
+   7              	.GLOBAL main
+   8              	
+   9              	main:
+  10 0000 18C09FE5 			LDR		R12, = tempLoc
+  11 0004 00E08CE5 			STR		LR, [R12]
+  12              		
+  13 0008 14009FE5 			LDR		R0, = helloString
+  14              		
+  15 000c FEFFFFEB 			BL		printf
+  16              		
+  17 0010 08C09FE5 			LDR		R12, = tempLoc
+  18 0014 00E09CE5 			LDR		LR, [R12]
+  19              		
+  20 0018 0900A0E3 			MOV		R0, #9
+  21 001c 1EFF2FE1 			BX		LR
+  21      00000000 
+  21      04000000 

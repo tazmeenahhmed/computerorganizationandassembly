@@ -1,0 +1,23 @@
+// Tazmeen Ahmed, CIST 039
+
+.DATA
+tempLoc:		.WORD	1
+
+helloString:	.ASCIZ "Hello World!\n"
+
+.TEXT
+.GLOBAL main
+
+main:
+		LDR		R12, = tempLoc
+		STR		LR, [R12]
+	
+		LDR		R0, = helloString
+	
+		BL		printf
+	
+		LDR		R12, = tempLoc
+		LDR		LR, [R12]
+	
+		MOV		R0, #9
+		BX		LR
