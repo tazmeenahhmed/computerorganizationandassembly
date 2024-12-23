@@ -1,0 +1,171 @@
+@ Program 4
+@ JumpDecode.s
+@ Tazmeen Ahmed
+@ CIST 039
+.PSIZE 50, 100
+.TITLE		"ARM Jump Decoding"
+.SBTTL		"Data Section"	
+
+.DATA
+
+courseSTR:		.ASCIZ	"Tazmeen Ahmed\t\t\tCIST 039\n"
+pgmSTR:			.ASCIZ	"This program will Decode a subset of ARM instructions\n"
+titleSTR:		.ASCIZ	"Address\t\tM Language\tInstruction"
+
+printSTR:		.ASCIZ	"0x%08X\t%08X\t"
+printBranchOff:	.STRING	"\t<%+d>"
+printSTRing:	.STRING	"%s"
+
+unknownIns:		.STRING "UNKNOWN INSTRUCTION"
+branchMnemonics:
+			.STRING	"EQ "	// 0000 aka 0x0		// bit values in CC field
+			.STRING	"NE "	// 0001 aka 0x1
+			.STRING	"CS "	// 0010 aka 0x2
+			.STRING	"CC "	// 0011 aka 0x3
+			.STRING	"MI "	// 0100 aka 0x4
+			.STRING	"PL "	// 0101 aka 0x5
+			.STRING	"VS "	// 0110 aka 0x6
+			.STRING	"VC " 	// 0111 aka 0x7
+			.STRING	"HI "	// 1000 aka 0x8
+			.STRING	"LS "	// 1001 aka 0x9
+			.STRING	"GE "	// 1010 aka 0xA
+			.STRING	"LT "	// 1011 aka 0xB
+			.STRING	"GT "	// 1100 aka 0xC
+			.STRING	"LE "	// 1101 aka 0xD
+			.STRING	"   "	// 1110 aka 0xE		// just B / BL
+			.STRING	"xx "	// 1111	aka 0xF		// reserved, never use
+
+/*
+shiftInSTRuctionCC	=28
+maskInSTRuctionCC	=0b1111
+
+shiftLinkFlag		=24
+
+shiftMajorOpcode	= 25
+maskMajorOpcode		= 0b0000111
+*/
+
+
+							
+.EJECT								// Form feed / New Page
+.SBTTL		"The Code for the Program"
+.TEXT
+.GLOBAL	main
+
+main:
+
+	SUB		SP, SP, #24
+	STR		LR, [SP, #20]
+	STR		R8, [SP, #16]
+	STR		R7, [SP, #12]
+	STR		R6, [SP, #8]
+	STR		R5, [SP, #4]
+	STR		R4, [SP, #0]
+	
+	LDR		R0, =courseSTR				// class title
+	BL		puts
+	
+	LDR		R0, =pgmSTR				// program title
+	BL		puts
+	
+	LDR		R0, =titleSTR				// column header
+	BL		puts
+	
+	LDR		R7, =branchMnemonics
+	LDR		R5, =TestCodeToDecode	
+	MOV		R4, #0					// loop counter and index
+	
+LOOP:
+
+	LDR		R6, [R5, R4, LSL #2]			// fetch current instruction
+	
+	MOV		R2, R6					// print EA and machine language instruction
+	ADD		R1, R5, R4, LSL #2
+	LDR		R0, =printSTR
+	BL		printf
+	
+	AND		R12, R6, #0b0000111 << 25		// check and print if branch
+	TEQ		R12, #0b0000101 << 25
+	BNE		notBranchInstruction
+	
+	MOV		R0, #'B'					
+	BL		putchar
+	
+	ANDS		R12, R6, #0b00000001 << 24		// check and print if BL
+	BEQ		next
+	
+	MOV		R0, #'L'					
+	BL		putchar
+	
+next:
+	
+	AND		R1, R6, #0b1111 << 28			// match and print condition code
+	LSR		R1, R1, #28				// match cc to be like 0x1, 0x2, 0xA, etc
+	ADD		R1, R7, R1, LSL #2
+	LDR		R0, =printSTRing			
+	BL		printf
+	
+	LSL		R1, R6, #24				// calculate and print offset + sign extension
+	ASR		R1, R1, #22					
+	ADD		R1, R1, #8
+	LDR		R0, =printBranchOff			
+	BL		printf	
+	
+	B		loopNext
+
+notBranchInstruction:
+
+	LDR		R0, =unknownIns
+	BL		printf
+
+loopNext:
+	
+	MOV		R0, #'\n'
+	BL		putchar
+
+	ADD		R4, R4, #1
+	CMP		R4, #20					// read 20 instructions
+	BLT		LOOP
+
+programExit:
+	
+	LDR		R4, [SP, #0]
+	LDR		R5, [SP, #4]
+	LDR		R6, [SP, #8]
+	LDR		R7, [SP, #12]
+	LDR		R8, [SP, #16]
+	LDR		LR, [SP, #20]
+	ADD		SP, SP, #24
+	
+	MOV		R0,#0					// return code of 0	
+	BX		LR
+	
+TestCodeToDecode:						// random test code
+	BEQ		T2
+	BLNE	TestCodeToDecode
+	.WORD	0xFFFFFFFF
+	.WORD	0X00000000
+	BMI		T2
+	MOV		R1, R2
+	BLPL	T2
+	BCS		T2
+	BLHI	TestCodeToDecode
+	BLS		T2
+	BLGT	T2
+	BGE		T2
+	.ASCII	"ABCD"
+	BLCC	T2
+	BVS		T2
+	BLVC	T2
+	BLE		T2
+	B		T2
+	BL		TestCodeToDecode
+	
+T2:
+	ANDS	R3, R5, R9, ASR	#7
+	CMP		R5, R7
+	CMP		R6, #25
+
+	CMN		R11, R13
+	ADD		R0,R7,R2
+	ORR		R11,R12,R10
