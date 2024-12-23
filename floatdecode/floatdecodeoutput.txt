@@ -1,0 +1,25 @@
+Tazmeen Ahmed	CIST 039
+
+This program will input and decode an IEEE-754 Floating Point Numbers. 
+It will square the root of the number and decode it. 
+Next, if possible, it will take the square root of the number and decode it. 
+This will repreat until the user enters Zero.
+
+Enter the single precision floating point value (0 to exit): 0.75
+The initial value is:		+1.10000000000000000000000 E-1
+The value squared is:		+1.00100000000000000000000 E-1
+The root of the value is:	+1.10111011011001111010111 E-1
+Enter the single precision floating point value (0 to exit): 4
+The initial value is:		+1.00000000000000000000000 E2
+The value squared is:		+1.00000000000000000000000 E4
+The root of the value is:	+1.00000000000000000000000 E1
+Enter the single precision floating point value (0 to exit): -256
+The initial value is:		-1.00000000000000000000000 E8
+The value squared is:		+1.00000000000000000000000 E16
+Enter the single precision floating point value (0 to exit): 0
+
+
+------------------
+(program exited with code: 0)
+Press return to continue
+
